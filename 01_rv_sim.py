@@ -42,7 +42,7 @@ sigma = tstd(x) # tstd
 skewness = skew(x)
 kurt = kurtosis(x)
 
-# Test of Normality: Jarque-Bera
+# Normality Test: Jarque-Bera
 jb_stat = size/6 * (skewness**2 + 1/4*kurt**2)
 p_value = 1 - chi2.cdf(jb_stat, df=2)
 is_normal = (p_value > 0.05) # equivalently jb < 6
@@ -62,9 +62,9 @@ plt.title(str_title)
 plt.show()
 
 
-################################
-# Test de Normality: Jarque-Bera
-################################
+####################################
+# loop of Jarque-Bera normality test
+####################################
 
 n = 0
 is_normal = True
