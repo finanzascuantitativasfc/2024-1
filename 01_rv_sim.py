@@ -9,14 +9,34 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.stats as st
+import importlib
+
+# import our own files and reload
+import random_variables
+importlib.reload(random_variables)
 
 # inputs
 coeff = 5
 # df in student and chi-squared, scale in exponential
 size = 10**6
-random_variable_type = 'student'
+random_variable_type = 'normal'
 # options: normal student uniform exponential chi-squared
 decimals = 5
+
+sim = random_variables.simulator(coeff, random_variable_type)
+sim.generate_vector()
+x = sim.vector
+
+# task 1
+# compute the RV vector
+# DONE: sim.generate_vector()
+
+# task 2
+# compute stats on the RV vector
+# including the Jarque-Bera test
+
+# task 3
+# plot
 
 
 # code
@@ -35,16 +55,17 @@ elif random_variable_type == 'chi-squared':
     x = np.random.chisquare(df=coeff, size=size)
     str_title += ' df=' + str(coeff)
 
+
+# Normality Test: Jarque-Bera
 mu = st.tmean(x) # tmean
 sigma = st.tstd(x) # tstd
 skewness = st.skew(x)
 kurtosis = st.kurtosis(x)
-
-# Normality Test: Jarque-Bera
 jb_stat = size/6 * (skewness**2 + 1/4*kurtosis**2)
 p_value = 1 - st.chi2.cdf(jb_stat, df=2)
 is_normal = (p_value > 0.05) # equivalently jb < 6
 
+# plot
 str_title += '\n' + 'mean=' + str(np.round(mu,decimals)) \
     + ' | ' + 'volatility=' + str(np.round(sigma,decimals)) \
     + '\n' + 'skewness=' + str(np.round(skewness,decimals)) \
@@ -52,8 +73,6 @@ str_title += '\n' + 'mean=' + str(np.round(mu,decimals)) \
     + '\n' + 'JB stat=' + str(np.round(jb_stat,decimals)) \
     + ' | ' + 'p-value=' + str(np.round(p_value,decimals)) \
     + '\n' + 'is_normal=' + str(is_normal)
-
-# plot
 plt.figure()
 plt.hist(x,bins=100)
 plt.title(str_title)
