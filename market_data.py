@@ -21,7 +21,7 @@ def load_timeseries(ric):
     t['close'] = raw_data['Close']
     t = t.sort_values(by='date', ascending=True)
     t['close_previous'] = t['close'].shift(1)
-    t['return_close'] = t['close']/t['close_previous'] - 1
+    t['return'] = t['close']/t['close_previous'] - 1
     t = t.dropna()
     t = t.reset_index(drop=True)
     return t
@@ -48,7 +48,7 @@ class distribution:
         
     def load_timeseries(self):
         self.timeseries = load_timeseries(self.ric)
-        self.vector = self.timeseries['return_close'].values
+        self.vector = self.timeseries['return'].values
         self.size = len(self.vector)
         self.str_title = self.ric + " | real data"
         

@@ -20,7 +20,7 @@ importlib.reload(market_data)
 
 # inputs
 directory = 'C:\\Users\\Meva\\.spyder-py3\\2024-1\\data\\' # hardcoded
-ric = 'SPY'
+ric = 'EWW'
 
 # computations
 dist = market_data.distribution(ric)
