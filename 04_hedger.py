@@ -17,41 +17,24 @@ import capm
 importlib.reload(capm)
 
 # inputs
-position_security = 'NVDA'
+position_security = 'V'
 position_delta_usd = 10 # in mn USD
 benchmark = '^SPX'
-hedge_securities = ['GOOG','AAPL','MSFT','SPY']
+# hedge_universe = ['AAPL','MSFT','NVDA','AMZN','GOOG','META','NFLX','SPY','XLK','XLF']
+hedge_universe = ['BRK-B','JPM','V','MA','BAC','MS','GS','BLK','SPY','XLF']
+regularisation = 0.01
 
+# compute correlations
+df = capm.dataframe_correlation_beta(benchmark, position_security, hedge_universe)
+
+# computations
+hedge_securities = ['MA','SPY']
 hedger = capm.hedger(position_security, position_delta_usd, benchmark, hedge_securities)
 hedger.compute_betas()
-hedger.compute_hedge_weights()
-hedge_weights_exact = hedger.hedge_weights
+hedger.compute_hedge_weights(regularisation)
 
-
-# parameters
-betas = hedger.hedge_betas
-target_delta = hedger.position_delta_usd
-target_beta = hedger.position_beta_usd
-
-# define the function to minimise
-def cost_function(x, betas, target_delta, target_beta):
-    dimensions = len(x)
-    deltas = np.ones([dimensions])
-    f_delta = (np.transpose(deltas).dot(x).item() + target_delta)**2
-    f_beta = (np.transpose(betas).dot(x).item() + target_beta)**2
-    f = f_delta + f_beta
-    return f
-
-# initial condition
-x0 = - target_delta / len(betas) * np.ones([len(betas),1])
-
-# compute optimisation
-optimal_result = op.minimize(fun=cost_function, x0=x0,\
-                             args=(betas,target_delta,target_beta))
-hedge_weights_optimize = optimal_result.x
-    
-# print
-print('------')
-print('Optimisation result:')
-print(optimal_result)
-print('------')
+# variables
+position_beta_usd = hedger.position_beta_usd
+hedge_weights = hedger.hedge_weights
+hedge_delta_usd = hedger.hedge_delta_usd
+hedge_beta_usd = hedger.hedge_beta_usd
