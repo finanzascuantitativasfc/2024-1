@@ -136,8 +136,9 @@ class hedger:
         self.hedge_betas = []
         self.hedge_weights = None
         self.hedge_delta_usd = None
+        self.hedge_cost_usd = None
         self.hedge_beta_usd = None
-        
+               
     def compute_betas(self):
         self.position_beta = compute_beta(self.benchmark, self.position_security)
         self.position_beta_usd = self.position_beta * self.position_delta_usd
@@ -156,7 +157,8 @@ class hedger:
                                            regularisation))
         self.hedge_weights = optimal_result.x
         self.hedge_delta_usd = np.sum(self.hedge_weights)
-        self.hedge_beta_usd = np.transpose(self.hedge_betas).dot(self.hedge_weights).item()
+        self.hedge_cost_usd = np.sum(np.abs(self.hedge_weights))
+        self.hedge_beta_usd = np.transpose(self.hedge_betas).dot(self.hedge_weights).item()        
             
     def compute_hedge_weights_exact(self):
         # exact solution using matrix algebra

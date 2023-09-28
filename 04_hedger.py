@@ -17,18 +17,19 @@ import capm
 importlib.reload(capm)
 
 # inputs
-position_security = 'V'
+position_security = 'BTC-USD'
 position_delta_usd = 10 # in mn USD
 benchmark = '^SPX'
 # hedge_universe = ['AAPL','MSFT','NVDA','AMZN','GOOG','META','NFLX','SPY','XLK','XLF']
-hedge_universe = ['BRK-B','JPM','V','MA','BAC','MS','GS','BLK','SPY','XLF']
-regularisation = 0.01
+# hedge_universe = ['BRK-B','JPM','V','MA','BAC','MS','GS','BLK','SPY','XLF']
+hedge_universe = ['BTC-USD','ETH-USD','SOL-USD','^SPX','XLK','XLF']
+regularisation = 0.1
 
 # compute correlations
 df = capm.dataframe_correlation_beta(benchmark, position_security, hedge_universe)
 
 # computations
-hedge_securities = ['MA','SPY']
+hedge_securities = ['ETH-USD','SOL-USD']
 hedger = capm.hedger(position_security, position_delta_usd, benchmark, hedge_securities)
 hedger.compute_betas()
 hedger.compute_hedge_weights(regularisation)
@@ -38,3 +39,4 @@ position_beta_usd = hedger.position_beta_usd
 hedge_weights = hedger.hedge_weights
 hedge_delta_usd = hedger.hedge_delta_usd
 hedge_beta_usd = hedger.hedge_beta_usd
+hedge_cost_usd = hedger.hedge_cost_usd
