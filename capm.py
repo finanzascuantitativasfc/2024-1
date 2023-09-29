@@ -40,6 +40,7 @@ def dataframe_correlation_beta(benchmark, position_security, hedge_universe):
     df['hedge_security'] = hedge_universe
     df['correlation'] = correlations
     df['beta'] = betas
+    df = df.dropna()
     df = df.sort_values(by='correlation', ascending=False)
     return df
     
@@ -148,7 +149,8 @@ class hedger:
             
     def compute_hedge_weights(self, regularisation = 0):
         # initial condition
-        x0 = - self.position_delta_usd / len(self.hedge_betas) * np.ones([len(self.hedge_betas),1])
+        # x0 = - self.position_delta_usd / len(self.hedge_betas) * np.ones([len(self.hedge_betas),1])
+        x0 = [- self.position_delta_usd / len(self.hedge_betas)] * len(self.hedge_betas)
         # compute optimisation
         optimal_result = op.minimize(fun=cost_function_capm, x0=x0,\
                                      args=(self.hedge_betas, \
