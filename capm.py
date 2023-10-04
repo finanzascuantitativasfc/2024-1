@@ -43,6 +43,23 @@ def dataframe_correlation_beta(benchmark, position_security, hedge_universe):
     df = df.dropna()
     df = df.sort_values(by='correlation', ascending=False)
     return df
+
+def dataframe_factors(security, factors):
+    decimals = 5
+    df = pd.DataFrame()
+    correlations = []
+    betas = []
+    for factor in factors:
+        correlation = compute_correlation(factor, security)
+        beta = compute_beta(factor, security)
+        correlations.append(np.round(correlation, decimals))
+        betas.append(np.round(beta, decimals))
+    df['factor'] = factors
+    df['correlation'] = correlations
+    df['beta'] = betas
+    df = df.dropna()
+    df = df.sort_values(by='correlation', ascending=False)
+    return df
     
 # define the function to minimise for beta- and delta-neutral hedge
 def cost_function_capm(x, betas, target_delta, target_beta, regularisation):
