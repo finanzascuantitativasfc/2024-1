@@ -46,6 +46,31 @@ def synchronise_timeseries(benchmark, security):
     timeseries['return_x'] = timeseries_x['return']
     timeseries['return_y'] = timeseries_y['return']
     return timeseries
+
+
+def synchronise_returns(rics):
+    df = pd.DataFrame()
+    dic_timeseries = {}
+    timestamps = []
+    for ric in rics:
+        t = load_timeseries(ric)
+        dic_timeseries[ric] = t
+        if len(timestamps) == 0:
+            timestamps = list(t['date'].values)
+        temp_timestamps = list(t['date'].values)
+        timestamps = list(set(timestamps) & set(temp_timestamps))
+    for ric in dic_timeseries:
+        t = dic_timeseries[ric]
+        t = t[t['date'].isin(timestamps)]
+        t = t.sort_values(by='date', ascending=True)
+        t = t.dropna()
+        t = t.reset_index(drop=True)
+        dic_timeseries[ric] = t
+        if df.shape[1] == 0:
+            df['date'] = timestamps
+        df[ric] = t['return']
+    return df
+
     
 class distribution:
     
