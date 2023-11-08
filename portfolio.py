@@ -75,19 +75,19 @@ class manager:
         non_negative = [(0, None) for i in range(len(self.rics))]
         
         # compute optimal portfolios
-        if portfolio_type == 'min_variance_l1':
+        if portfolio_type == 'min-variance-l1':
             optimal_result = op.minimize(fun=portfolio_variance, x0=x0,\
                                          args=(self.mtx_var_covar),\
                                          constraints=(l1_norm))
             weights = np.array(optimal_result.x)
             
-        elif portfolio_type == 'min_variance_l2':
+        elif portfolio_type == 'min-variance-l2':
             optimal_result = op.minimize(fun=portfolio_variance, x0=x0,\
                                          args=(self.mtx_var_covar),\
                                          constraints=(l2_norm))
             weights = np.array(optimal_result.x)
                        
-        elif portfolio_type == 'long_only':
+        elif portfolio_type == 'long-only':
             optimal_result = op.minimize(fun=portfolio_variance, x0=x0,\
                                           args=(self.mtx_var_covar),\
                                           constraints=(l1_norm),\
@@ -107,7 +107,7 @@ class manager:
                                           constraints=(l1_norm + markowitz),\
                                           bounds=non_negative)
             weights = np.array(optimal_result.x)
-            
+        
         else:
             portfolio_type = 'equi-weight'
             weights = np.array(x0)
@@ -200,3 +200,77 @@ class output:
         plt.show()
         
         
+def compute_efficient_frontier(rics, notional, target_return, include_min_variance):
+    # special portfolios    
+    label1 = 'min-variance-l1'
+    label2 = 'min-variance-l2'
+    label3 = 'equi-weight'
+    label4 = 'long-only'
+    label5 = 'markowitz-none'
+    label6 = 'markowitz-target'
+    
+    # compute covariance matrix
+    port_mgr = manager(rics, notional)
+    port_mgr.compute_covariance()
+    
+    # compute vectors of returns and volatilities for Markowitz portfolios
+    min_returns = np.min(port_mgr.returns)
+    max_returns = np.max(port_mgr.returns)
+    returns = min_returns + np.linspace(0.05,0.95,100) * (max_returns-min_returns)
+    volatilities = np.zeros([len(returns),1])
+    counter = 0
+    for ret in returns:
+        port_markowitz = port_mgr.compute_portfolio('markowitz', ret)
+        volatilities[counter] = port_markowitz.volatility_annual
+        counter += 1
+        
+    # compute special portfolios
+    port1 = port_mgr.compute_portfolio(label1)
+    port2 = port_mgr.compute_portfolio(label2)
+    port3 = port_mgr.compute_portfolio(label3)
+    port4 = port_mgr.compute_portfolio(label4)
+    port5 = port_mgr.compute_portfolio('markowitz')
+    port6 = port_mgr.compute_portfolio('markowitz', target_return)
+    
+    # create scatterplots of special portfolios
+    x1 = port1.volatility_annual
+    y1 = port1.return_annual
+    x2 = port2.volatility_annual
+    y2 = port2.return_annual
+    x3 = port3.volatility_annual
+    y3 = port3.return_annual
+    x4 = port4.volatility_annual
+    y4 = port4.return_annual
+    x5 = port5.volatility_annual
+    y5 = port5.return_annual
+    x6 = port6.volatility_annual
+    y6 = port6.return_annual
+    
+    # plot Efficient Frontier
+    plt.figure()
+    plt.title('Efficient Frontier for a portfolio including ' + rics[0])
+    plt.scatter(volatilities,returns)
+    if include_min_variance:
+        plt.plot(x1, y1, "oy", label=label1) # yellow circle
+        plt.plot(x2, y2, "or", label=label2) # red circle
+    plt.plot(x3, y3, "^y", label=label3) # yellow triangle
+    plt.plot(x4, y4, "^r", label=label4) # red triangle
+    plt.plot(x5, y5, "sy", label=label5) # yellow square
+    plt.plot(x6, y6, "sr", label=label6) # red square
+    plt.ylabel('portfolio return')
+    plt.xlabel('portfolio volatility')
+    plt.grid()
+    if include_min_variance:
+        plt.legend(loc='best')
+    else:
+        plt.legend(loc='lower right',  borderaxespad=0.)
+    plt.show()
+    
+    dict_portfolios = {label1: port1,
+                       label2: port2,
+                       label3: port3,
+                       label4: port4,
+                       label5: port5,
+                       label6: port6}
+    
+    return dict_portfolios
