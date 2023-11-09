@@ -46,7 +46,8 @@ rics = random.sample(universe, 10)
 # rics = ['AAPL','MSFT','NVDA','AMZN','GOOG','META','NFLX',\
 #         'BRK-B','JPM','V','MA','BAC','MS','GS','BLK',\
 #         'LLY','JNJ','PG','MRK','ABBV','PFE']
-rics = ['XLC', 'XLU', 'QUAL', 'BTC-USD', 'XLY', 'NOKUSD=X', 'XLB', '^GDAXI', 'GOOG', 'CHFUSD=X']
+rics = ['XLC', 'XLU', 'QUAL', 'BTC-USD', 'XLY', \
+        'NOKUSD=X', 'XLB', '^GDAXI', 'GOOG', 'CHFUSD=X']
 # rics = universe
 
 # efficient frontier
@@ -54,3 +55,4 @@ target_return = 0.075
 include_min_variance = True
 dict_portfolios = portfolio.compute_efficient_frontier(rics, notional, target_return, include_min_variance)
 print(rics)
+dict_portfolios['markowitz-target'].plot_histogram()
