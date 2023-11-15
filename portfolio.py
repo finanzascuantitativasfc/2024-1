@@ -108,16 +108,22 @@ class manager:
                                           bounds=non_negative)
             weights = np.array(optimal_result.x)
         
+        elif portfolio_type == 'volatility-weighted':
+            weights = np.array(1 / self.volatilities)
+            
         else:
             portfolio_type = 'equi-weight'
             weights = np.array(x0)
         
+        # normalise weights with L1 norm
+        weights /= sum(abs(weights))
+                      
         # fill output
         decimals = 6
         optimal_portfolio = output(self.rics, self.notional)
         optimal_portfolio.type = portfolio_type
-        optimal_portfolio.weights = weights / sum(abs(weights))
-        optimal_portfolio.allocation = self.notional * optimal_portfolio.weights
+        optimal_portfolio.weights = weights
+        optimal_portfolio.allocation = self.notional * weights
         optimal_portfolio.target_return = target_return
         optimal_portfolio.return_annual = np.round(self.returns.dot(weights), decimals)
         optimal_portfolio.volatility_annual = np.round(np.sqrt(\
